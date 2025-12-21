@@ -1004,6 +1004,7 @@ char ajouter_panier(char rep){
     }while(!(rep=='n'|| rep=='N' || rep=='o'|| rep=='O'));
     return rep;
 }
+
 void servir_client(){
     Client *Cl = defiler(file);
     if (Cl==NULL) {
@@ -1024,6 +1025,7 @@ void servir_client(){
     fprintf(teckit,"ID_PRODUIT | Quantite | TOTAL \n");
     char rep = 'o';
     Produit *prd = NULL;
+    Produit *prd_liste=NULL;
     while(rep=='o'|| rep=='O'){
         Transaction *T= creer_transaction();
         T->idClient=C->id;
@@ -1045,10 +1047,12 @@ void servir_client(){
                 printf("QUANTITE doit etre strictement positive! veuillez ressayer: \n");
             }
         } while (T->quantite<=0);
+        prd_liste =rechercher_par_nom(prd->nom);
         if(prd->quantite >= T->quantite){//premier test
             T->total = T->quantite * prd->prix;
             C->totalDepense+=T->total;
             prd->quantite-=T->quantite;
+            prd_liste->quantite-=T->quantite;
             obtenir_date_actuelle(T->date);
             fprintf(teckit,"%d\t|\t%d\t|\t%.2f\n",T->idProduit,T->quantite,T->total);
             empiler(T);
@@ -1061,6 +1065,7 @@ void servir_client(){
             scanf(" %c",&rep);
             if( rep == 'o'|| rep == 'O'){
                 T->quantite=prd->quantite;
+                prd_liste->quantite-=T->quantite;
                 T->total = T->quantite * prd->prix;
                 C->totalDepense+=T->total;
                 prd->quantite=0;
